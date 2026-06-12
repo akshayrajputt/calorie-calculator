@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calorie Calculator · koriander.akshay</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f0f;
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 60px;
+    }
+
+    header { text-align: center; margin-bottom: 36px; }
+    header .handle { font-size: 13px; color: #888; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+    header h1 { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #f5c842, #e8834a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    header p { color: #888; font-size: 14px; margin-top: 8px; max-width: 340px; }
+
+    .card {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #666; margin-bottom: 16px; }
+
+    /* Segmented control */
+    .seg-group { display: flex; gap: 6px; margin-bottom: 24px; }
+    .seg-group input[type=radio] { display: none; }
+    .seg-group label { flex: 1; text-align: center; padding: 11px 6px; background: #111; border: 1px solid #333; border-radius: 10px; cursor: pointer; font-size: 13px; color: #888; transition: all 0.2s; font-weight: 500; }
+    .seg-group input[type=radio]:checked + label { background: #f5c842; border-color: #f5c842; color: #0f0f0f; }
+
+    /* Dial sliders */
+    .dial-group { margin-bottom: 24px; }
+    .dial-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .dial-item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .dial-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+    .dial-val { font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #f5c842, #e8834a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
+    .dial-unit { font-size: 11px; color: #666; margin-top: -6px; }
+
+    /* Range input styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: #333;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f5c842, #e8834a);
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(245, 200, 66, 0.5);
+      transition: box-shadow 0.2s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover { box-shadow: 0 0 16px rgba(245, 200, 66, 0.8); }
+    input[type=range]::-moz-range-thumb {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: linear-gradient(135deg, #f5c842, #e8834a);
+      cursor: pointer; border: none;
+      box-shadow: 0 0 10px rgba(245, 200, 66, 0.5);
+    }
+
+    .divider { border: none; border-top: 1px solid #2a2a2a; margin: 4px 0 24px; }
+
+    select {
+      background: #111; border: 1px solid #333; border-radius: 10px;
+      color: #f0f0f0; font-size: 14px; padding: 12px 14px;
+      outline: none; transition: border-color 0.2s; width: 100%; margin-bottom: 14px;
+      -webkit-appearance: none; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 14px center;
+    }
+    select:focus { border-color: #f5c842; }
+    .select-label { font-size: 12px; color: #888; font-weight: 500; margin-bottom: 6px; display: block; }
+
+    button.cta {
+      width: 100%; padding: 15px;
+      background: linear-gradient(135deg, #f5c842, #e8834a);
+      border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
+      color: #0f0f0f; cursor: pointer; letter-spacing: 0.02em;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    button.cta:hover { opacity: 0.92; }
+    button.cta:active { transform: scale(0.99); }
+
+    button.cta-outline {
+      width: 100%; padding: 14px;
+      background: transparent;
+      border: 1.5px solid #f5c842; border-radius: 12px; font-size: 14px; font-weight: 600;
+      color: #f5c842; cursor: pointer; letter-spacing: 0.02em;
+      transition: all 0.2s; margin-top: 16px;
+    }
+    button.cta-outline:hover { background: rgba(245,200,66,0.08); }
+
+    /* Results */
+    #results { display: none; margin-top: 24px; }
+
+    .result-hero { text-align: center; padding: 24px 0 20px; border-bottom: 1px solid #2a2a2a; margin-bottom: 20px; }
+    .result-hero .cal-num { font-size: 56px; font-weight: 800; background: linear-gradient(135deg, #f5c842, #e8834a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
+    .result-hero .cal-label { font-size: 13px; color: #888; margin-top: 6px; }
+
+    .macros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    .macro-chip { background: #111; border: 1px solid #2a2a2a; border-radius: 12px; padding: 14px 10px; text-align: center; }
+    .macro-chip .val { font-size: 22px; font-weight: 700; color: #f0f0f0; }
+    .macro-chip .unit { font-size: 11px; color: #888; margin-top: 2px; }
+    .macro-chip .name { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+
+    .stats-list { display: flex; flex-direction: column; gap: 10px; }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #111; border-radius: 10px; }
+    .stat-row .s-label { font-size: 13px; color: #888; }
+    .stat-row .s-val { font-size: 14px; font-weight: 600; color: #f0f0f0; }
+
+    .bmi-badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-left: 6px; }
+    .bmi-Underweight { background: #1e3a5f; color: #7ab8f5; }
+    .bmi-Normal { background: #1a3a1a; color: #6fcf6f; }
+    .bmi-Overweight { background: #3a2a10; color: #f5c842; }
+    .bmi-Obese { background: #3a1a1a; color: #f57474; }
+
+    .disclaimer { font-size: 12px; color: #555; text-align: center; margin-top: 20px; line-height: 1.5; }
+
+    /* Diet chart */
+    #diet-section { display: none; margin-top: 8px; }
+
+    .diet-intro { font-size: 13px; color: #888; margin-bottom: 20px; text-align: center; line-height: 1.5; }
+
+    .week-grid { display: flex; flex-direction: column; gap: 10px; }
+
+    .day-card { background: #111; border: 1px solid #2a2a2a; border-radius: 14px; overflow: hidden; }
+    .day-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; cursor: pointer; user-select: none; }
+    .day-header .day-name { font-size: 14px; font-weight: 700; color: #f0f0f0; }
+    .day-header .day-theme { font-size: 12px; color: #888; }
+    .day-header .chevron { font-size: 12px; color: #555; transition: transform 0.2s; }
+    .day-card.open .chevron { transform: rotate(180deg); }
+
+    .day-body { display: none; padding: 0 16px 14px; border-top: 1px solid #222; }
+    .day-card.open .day-body { display: block; }
+
+    .meal-row { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #1a1a1a; }
+    .meal-row:last-child { border-bottom: none; }
+    .meal-icon { font-size: 20px; width: 32px; flex-shrink: 0; margin-top: 1px; }
+    .meal-info { flex: 1; }
+    .meal-type { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+    .meal-name { font-size: 13px; color: #e0e0e0; margin-top: 2px; line-height: 1.4; }
+    .meal-cals { font-size: 12px; color: #888; margin-top: 3px; }
+
+    footer { margin-top: 32px; text-align: center; font-size: 12px; color: #444; }
+    footer a { color: #f5c842; text-decoration: none; }
+
+    @media (max-width: 400px) {
+      .card { padding: 24px 18px; }
+      .result-hero .cal-num { font-size: 46px; }
+      .dial-val { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="handle">@koriander.akshay</div>
+    <h1>Calorie Calculator</h1>
+    <p>Find your daily calories, macros, and more — based on your goals.</p>
+  </header>
+
+  <div class="card">
+
+    <div class="section-label">Gender</div>
+    <div class="seg-group">
+      <input type="radio" name="gender" id="g-male" value="male" checked />
+      <label for="g-male">Male</label>
+      <input type="radio" name="gender" id="g-female" value="female" />
+      <label for="g-female">Female</label>
+    </div>
+
+    <div class="section-label">Your Stats</div>
+    <div class="dial-group">
+      <div class="dial-row">
+        <div class="dial-item">
+          <div class="dial-label">Age</div>
+          <div class="dial-val" id="disp-age">25</div>
+          <div class="dial-unit">years</div>
+          <input type="range" id="age" min="15" max="65" value="25" step="1" oninput="document.getElementById('disp-age').textContent=this.value; updateTrack(this);" />
+        </div>
+        <div class="dial-item">
+          <div class="dial-label">Weight</div>
+          <div class="dial-val" id="disp-weight">70</div>
+          <div class="dial-unit">kg</div>
+          <input type="range" id="weight" min="40" max="150" value="70" step="1" oninput="document.getElementById('disp-weight').textContent=this.value; updateTrack(this);" />
+        </div>
+        <div class="dial-item">
+          <div class="dial-label">Height</div>
+          <div class="dial-val" id="disp-height">170</div>
+          <div class="dial-unit">cm</div>
+          <input type="range" id="height" min="140" max="210" value="170" step="1" oninput="document.getElementById('disp-height').textContent=this.value; updateTrack(this);" />
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+    <div class="section-label">Activity & Goal</div>
+
+    <label class="select-label">Activity Level</label>
+    <select id="activity">
+      <option value="1.2">Sedentary (desk job, little exercise)</option>
+      <option value="1.375">Lightly Active (1–3x / week)</option>
+      <option value="1.55" selected>Moderately Active (3–5x / week)</option>
+      <option value="1.725">Very Active (6–7x / week)</option>
+      <option value="1.9">Extra Active (athlete / physical job)</option>
+    </select>
+
+    <label class="select-label">Goal</label>
+    <select id="goal" style="margin-bottom:24px;">
+      <option value="cut">Lose Fat (−500 kcal)</option>
+      <option value="maintain" selected>Maintain Weight</option>
+      <option value="build">Build Muscle (+300 kcal)</option>
+      <option value="aggressive">Aggressive Cut (−750 kcal)</option>
+    </select>
+
+    <button class="cta" onclick="calculate()">Calculate →</button>
+
+    <!-- RESULTS -->
+    <div id="results">
+      <div class="result-hero">
+        <div class="cal-num" id="r-calories">—</div>
+        <div class="cal-label">Daily Calories (kcal)</div>
+      </div>
+
+      <div class="macros">
+        <div class="macro-chip">
+          <div class="val" id="r-protein">—</div>
+          <div class="unit">g</div>
+          <div class="name">Protein</div>
+        </div>
+        <div class="macro-chip">
+          <div class="val" id="r-carbs">—</div>
+          <div class="unit">g</div>
+          <div class="name">Carbs</div>
+        </div>
+        <div class="macro-chip">
+          <div class="val" id="r-fat">—</div>
+          <div class="unit">g</div>
+          <div class="name">Fat</div>
+        </div>
+      </div>
+
+      <div class="stats-list">
+        <div class="stat-row"><span class="s-label">BMI</span><span class="s-val" id="r-bmi">—</span></div>
+        <div class="stat-row"><span class="s-label">BMI Category</span><span class="s-val" id="r-bmi-cat">—</span></div>
+        <div class="stat-row"><span class="s-label">Water intake</span><span class="s-val" id="r-water">—</span></div>
+        <div class="stat-row"><span class="s-label">Expected weekly change</span><span class="s-val" id="r-weekly">—</span></div>
+        <div class="stat-row"><span class="s-label">Basal metabolic rate</span><span class="s-val" id="r-bmr">—</span></div>
+      </div>
+
+      <p class="disclaimer">Based on Mifflin-St Jeor equation. For general guidance only.</p>
+
+      <button class="cta-outline" onclick="showDiet()">🥗 Want a weekly diet chart for this goal?</button>
+    </div>
+
+    <!-- DIET CHART -->
+    <div id="diet-section">
+      <hr class="divider" style="margin-top:24px;" />
+      <div class="section-label" style="margin-bottom:8px;">Your Weekly Diet Chart</div>
+      <p class="diet-intro" id="diet-intro"></p>
+      <div class="week-grid" id="week-grid"></div>
+      <p class="disclaimer" style="margin-top:16px;">Portions are approximate. Adjust to your hunger and local ingredients.</p>
+    </div>
+
+  </div>
+
+  <footer>Made with ❤️ by <a href="https://www.instagram.com/koriander.akshay" target="_blank">@koriander.akshay</a></footer>
+
+  <script>
+    // Init tracks on load
+    document.querySelectorAll('input[type=range]').forEach(r => updateTrack(r));
+
+    function updateTrack(input) {
+      const min = +input.min, max = +input.max, val = +input.value;
+      const pct = ((val - min) / (max - min)) * 100;
+      input.style.background = `linear-gradient(to right, #f5c842 ${pct}%, #333 ${pct}%)`;
+    }
+
+    let lastCalc = {};
+
+    function calculate() {
+      const gender   = document.querySelector('input[name=gender]:checked').value;
+      const age      = +document.getElementById('age').value;
+      const weight   = +document.getElementById('weight').value;
+      const height   = +document.getElementById('height').value;
+      const activity = +document.getElementById('activity').value;
+      const goal     = document.getElementById('goal').value;
+
+      const bmr = gender === 'male'
+        ? 10*weight + 6.25*height - 5*age + 5
+        : 10*weight + 6.25*height - 5*age - 161;
+
+      const tdee = bmr * activity;
+      const adj  = { cut: -500, maintain: 0, build: 300, aggressive: -750 };
+      const dailyCals = Math.round(tdee + adj[goal]);
+
+      const protMult = { cut: 2.2, maintain: 1.8, build: 2.4, aggressive: 2.2 };
+      const protein  = Math.round(weight * protMult[goal]);
+      const fat      = Math.round(dailyCals * 0.25 / 9);
+      const carbs    = Math.max(0, Math.round((dailyCals * 0.75 - protein * 4) / 4));
+
+      const heightM  = height / 100;
+      const bmi      = Math.round((weight / (heightM * heightM)) * 10) / 10;
+      let bmiCat, bmiClass;
+      if (bmi < 18.5)    { bmiCat = 'Underweight'; bmiClass = 'bmi-Underweight'; }
+      else if (bmi < 25) { bmiCat = 'Normal Weight'; bmiClass = 'bmi-Normal'; }
+      else if (bmi < 30) { bmiCat = 'Overweight'; bmiClass = 'bmi-Overweight'; }
+      else               { bmiCat = 'Obese'; bmiClass = 'bmi-Obese'; }
+
+      const waterL   = (weight * 35 / 1000).toFixed(1);
+      const weeklyMap = { cut: '−0.45 kg / week', maintain: '0 kg / week', build: '+0.27 kg / week', aggressive: '−0.68 kg / week' };
+
+      document.getElementById('r-calories').textContent = dailyCals.toLocaleString();
+      document.getElementById('r-protein').textContent  = protein;
+      document.getElementById('r-carbs').textContent    = carbs;
+      document.getElementById('r-fat').textContent      = fat;
+      document.getElementById('r-bmi').textContent      = bmi;
+      document.getElementById('r-bmi-cat').innerHTML    = `<span class="bmi-badge ${bmiClass}">${bmiCat}</span>`;
+      document.getElementById('r-water').textContent    = `${waterL} L / day`;
+      document.getElementById('r-weekly').textContent   = weeklyMap[goal];
+      document.getElementById('r-bmr').textContent      = `${Math.round(bmr)} kcal`;
+
+      lastCalc = { dailyCals, protein, carbs, fat, goal };
+
+      const results = document.getElementById('results');
+      results.style.display = 'block';
+      document.getElementById('diet-section').style.display = 'none';
+      results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ─── Diet plans ─────────────────────────────────────────────────────────────
+    const PLANS = {
+      cut: {
+        intro: "High protein, lower carb meals to preserve muscle while burning fat. Target: {cal} kcal · {p}g protein daily.",
+        days: [
+          { day:"Monday",    theme:"Protein Kickstart",   meals:[{icon:"🍳",type:"Breakfast",name:"Egg white omelette (3 whites + 1 whole) with sautéed veggies",cals:"~280 kcal"},{icon:"🥗",type:"Lunch",name:"Grilled chicken breast with brown rice (½ cup) & cucumber salad",cals:"~420 kcal"},{icon:"🥜",type:"Snack",name:"Greek yoghurt with a handful of almonds",cals:"~180 kcal"},{icon:"🍛",type:"Dinner",name:"Dal + sabzi (no rice) with 2 rotis",cals:"~380 kcal"}]},
+          { day:"Tuesday",   theme:"Lean & Green",        meals:[{icon:"🥣",type:"Breakfast",name:"Moong dal chilla (2 pieces) with mint chutney",cals:"~260 kcal"},{icon:"🍱",type:"Lunch",name:"Grilled fish / paneer tikka with mixed greens & lemon dressing",cals:"~400 kcal"},{icon:"🍎",type:"Snack",name:"Apple + 1 tbsp peanut butter",cals:"~160 kcal"},{icon:"🥘",type:"Dinner",name:"Chicken stir-fry with broccoli, capsicum, low-sodium soy",cals:"~370 kcal"}]},
+          { day:"Wednesday", theme:"Slow Carb Day",       meals:[{icon:"🥛",type:"Breakfast",name:"Protein smoothie: banana, protein powder, almond milk, oats",cals:"~310 kcal"},{icon:"🍲",type:"Lunch",name:"Rajma (½ cup) + salad + 1 roti",cals:"~390 kcal"},{icon:"🥒",type:"Snack",name:"Boiled egg + sliced cucumber",cals:"~130 kcal"},{icon:"🍽️",type:"Dinner",name:"Baked chicken / paneer with roasted sweet potato & greens",cals:"~400 kcal"}]},
+          { day:"Thursday",  theme:"Repeat Monday",       meals:[{icon:"🍳",type:"Breakfast",name:"Egg white omelette with spinach",cals:"~260 kcal"},{icon:"🥗",type:"Lunch",name:"Grilled chicken rice bowl with veggies",cals:"~420 kcal"},{icon:"🥜",type:"Snack",name:"Cottage cheese (paneer) cubes + black pepper",cals:"~150 kcal"},{icon:"🍛",type:"Dinner",name:"Masoor dal + mixed sabzi + 2 rotis",cals:"~380 kcal"}]},
+          { day:"Friday",    theme:"Spice it Up",         meals:[{icon:"🥣",type:"Breakfast",name:"Besan chilla + curd",cals:"~290 kcal"},{icon:"🍱",type:"Lunch",name:"Tandoori chicken (2 pieces) + raita + salad",cals:"~440 kcal"},{icon:"🍊",type:"Snack",name:"Orange + roasted chana (30g)",cals:"~170 kcal"},{icon:"🥘",type:"Dinner",name:"Palak paneer (small portion) + 1 roti",cals:"~370 kcal"}]},
+          { day:"Saturday",  theme:"Active Refeed",       meals:[{icon:"🥛",type:"Breakfast",name:"Oats porridge with berries & chia seeds",cals:"~320 kcal"},{icon:"🍲",type:"Lunch",name:"Chicken curry + brown rice (¾ cup)",cals:"~480 kcal"},{icon:"🥜",type:"Snack",name:"Whey protein shake + banana",cals:"~200 kcal"},{icon:"🍽️",type:"Dinner",name:"Light soup (dal or veggie) + 2 rotis",cals:"~340 kcal"}]},
+          { day:"Sunday",    theme:"Rest & Recover",      meals:[{icon:"🍳",type:"Breakfast",name:"Scrambled eggs (2) + whole wheat toast + avocado",cals:"~340 kcal"},{icon:"🥗",type:"Lunch",name:"Grilled fish tacos / wraps with cabbage slaw",cals:"~420 kcal"},{icon:"🍎",type:"Snack",name:"Fruit salad + 10 almonds",cals:"~160 kcal"},{icon:"🍛",type:"Dinner",name:"Khichdi (oats or moong dal) + curd",cals:"~360 kcal"}]},
+        ]
+      },
+      maintain: {
+        intro: "Balanced meals to fuel your day without surplus or deficit. Target: {cal} kcal · {p}g protein daily.",
+        days: [
+          { day:"Monday",    theme:"Balanced Start",   meals:[{icon:"🥣",type:"Breakfast",name:"Poha with peanuts + a boiled egg",cals:"~350 kcal"},{icon:"🍱",type:"Lunch",name:"Dal rice + sabzi + curd",cals:"~500 kcal"},{icon:"🥜",type:"Snack",name:"Banana + 15 mixed nuts",cals:"~190 kcal"},{icon:"🍛",type:"Dinner",name:"Roti + sabzi + a bowl of dal",cals:"~450 kcal"}]},
+          { day:"Tuesday",   theme:"Protein-forward",  meals:[{icon:"🍳",type:"Breakfast",name:"2 eggs + whole grain toast + fruit",cals:"~370 kcal"},{icon:"🥗",type:"Lunch",name:"Chicken / paneer wrap with veggies",cals:"~490 kcal"},{icon:"🍎",type:"Snack",name:"Apple + peanut butter",cals:"~190 kcal"},{icon:"🍽️",type:"Dinner",name:"Grilled protein + 2 rotis + salad",cals:"~460 kcal"}]},
+          { day:"Wednesday", theme:"Mid-week Reset",   meals:[{icon:"🥛",type:"Breakfast",name:"Smoothie bowl: oats, banana, milk, seeds",cals:"~380 kcal"},{icon:"🍲",type:"Lunch",name:"Chole + 2 rotis + onion salad",cals:"~510 kcal"},{icon:"🥒",type:"Snack",name:"Greek yoghurt + granola",cals:"~200 kcal"},{icon:"🥘",type:"Dinner",name:"Stir-fried veggies + tofu/chicken + rice (½ cup)",cals:"~450 kcal"}]},
+          { day:"Thursday",  theme:"Classic Indian",   meals:[{icon:"🥣",type:"Breakfast",name:"Upma with veggies + coconut chutney",cals:"~360 kcal"},{icon:"🍱",type:"Lunch",name:"Rajma chawal + raita",cals:"~520 kcal"},{icon:"🥜",type:"Snack",name:"Roasted makhana (40g)",cals:"~160 kcal"},{icon:"🍛",type:"Dinner",name:"Paneer bhurji + 2 rotis",cals:"~470 kcal"}]},
+          { day:"Friday",    theme:"Flex Day",         meals:[{icon:"🍳",type:"Breakfast",name:"Moong dal chilla + curd",cals:"~340 kcal"},{icon:"🥗",type:"Lunch",name:"Chicken rice bowl / biryani (moderate portion)",cals:"~530 kcal"},{icon:"🍊",type:"Snack",name:"Seasonal fruit + handful of cashews",cals:"~200 kcal"},{icon:"🍽️",type:"Dinner",name:"Dal tadka + 2 rotis + sabzi",cals:"~460 kcal"}]},
+          { day:"Saturday",  theme:"Social Day",       meals:[{icon:"🥛",type:"Breakfast",name:"Oats + berries + protein powder",cals:"~370 kcal"},{icon:"🍲",type:"Lunch",name:"Enjoy a meal out — aim for grilled / baked options",cals:"~600 kcal"},{icon:"🥜",type:"Snack",name:"Light snack — fruit or yoghurt",cals:"~150 kcal"},{icon:"🥘",type:"Dinner",name:"Light home meal — khichdi or soup + roti",cals:"~400 kcal"}]},
+          { day:"Sunday",    theme:"Meal Prep Day",    meals:[{icon:"🍳",type:"Breakfast",name:"Eggs your way + whole grain toast",cals:"~380 kcal"},{icon:"🥗",type:"Lunch",name:"Comfort dal + jeera rice + papad",cals:"~520 kcal"},{icon:"🍎",type:"Snack",name:"Fruit chaat",cals:"~160 kcal"},{icon:"🍛",type:"Dinner",name:"Any wholesome sabzi + 2 rotis + curd",cals:"~460 kcal"}]},
+        ]
+      },
+      build: {
+        intro: "Calorie surplus with high protein to maximise muscle gain. Target: {cal} kcal · {p}g protein daily.",
+        days: [
+          { day:"Monday",    theme:"Mass Monday",      meals:[{icon:"🥣",type:"Breakfast",name:"Oats + banana + 2 whole eggs + milk (250ml)",cals:"~520 kcal"},{icon:"🍱",type:"Lunch",name:"Chicken curry + 1.5 cups rice + dal",cals:"~680 kcal"},{icon:"🥜",type:"Snack",name:"Peanut butter banana shake + handful of almonds",cals:"~380 kcal"},{icon:"🍛",type:"Dinner",name:"Paneer / chicken + 3 rotis + sabzi + curd",cals:"~580 kcal"}]},
+          { day:"Tuesday",   theme:"Protein Dense",    meals:[{icon:"🍳",type:"Breakfast",name:"4-egg omelette + 2 whole grain toasts + OJ",cals:"~500 kcal"},{icon:"🥗",type:"Lunch",name:"Grilled chicken (200g) + pasta / rice + veggies",cals:"~650 kcal"},{icon:"🍎",type:"Snack",name:"Mass gainer shake OR rice cakes + peanut butter",cals:"~400 kcal"},{icon:"🍽️",type:"Dinner",name:"Fish / paneer curry + brown rice + dal",cals:"~600 kcal"}]},
+          { day:"Wednesday", theme:"Carb-up Day",      meals:[{icon:"🥛",type:"Breakfast",name:"Banana pancakes (3) + honey + protein shake",cals:"~540 kcal"},{icon:"🍲",type:"Lunch",name:"Chole with 3 rotis + raita + lassi",cals:"~700 kcal"},{icon:"🥒",type:"Snack",name:"Boiled eggs (2) + mixed nuts + fruit",cals:"~360 kcal"},{icon:"🥘",type:"Dinner",name:"Grilled chicken + jeera rice (1.5 cups) + salad",cals:"~580 kcal"}]},
+          { day:"Thursday",  theme:"Repeat & Grow",    meals:[{icon:"🥣",type:"Breakfast",name:"Poha + peanuts + 2 eggs + a glass of milk",cals:"~510 kcal"},{icon:"🍱",type:"Lunch",name:"Mutton / paneer curry + rice + roti",cals:"~700 kcal"},{icon:"🥜",type:"Snack",name:"Whey protein + banana + peanut butter",cals:"~380 kcal"},{icon:"🍛",type:"Dinner",name:"Dal makhani + 3 rotis + sabzi",cals:"~600 kcal"}]},
+          { day:"Friday",    theme:"Pre-weekend Push", meals:[{icon:"🍳",type:"Breakfast",name:"Egg bhurji (4 eggs) + paratha + lassi",cals:"~560 kcal"},{icon:"🥗",type:"Lunch",name:"Chicken biryani (large portion) + raita",cals:"~720 kcal"},{icon:"🍊",type:"Snack",name:"Fruit salad + Greek yoghurt + granola",cals:"~340 kcal"},{icon:"🍽️",type:"Dinner",name:"Grilled protein + sweet potato + salad",cals:"~550 kcal"}]},
+          { day:"Saturday",  theme:"Social Surplus",   meals:[{icon:"🥛",type:"Breakfast",name:"Big smoothie: oats, banana, protein, milk, PB",cals:"~560 kcal"},{icon:"🍲",type:"Lunch",name:"Enjoy a meal out — don't hold back on rice or bread",cals:"~750 kcal"},{icon:"🥜",type:"Snack",name:"Protein shake + rice cakes",cals:"~380 kcal"},{icon:"🥘",type:"Dinner",name:"Home-cooked dal + rice + sabzi + curd",cals:"~570 kcal"}]},
+          { day:"Sunday",    theme:"Recovery Feast",   meals:[{icon:"🍳",type:"Breakfast",name:"Masala omelette (3 eggs) + paratha + chai",cals:"~540 kcal"},{icon:"🥗",type:"Lunch",name:"Comfort desi meal — dal, rice, sabzi, papad, curd",cals:"~700 kcal"},{icon:"🍎",type:"Snack",name:"Chikki / mixed nuts + banana",cals:"~350 kcal"},{icon:"🍛",type:"Dinner",name:"Paneer / chicken curry + 3 rotis",cals:"~590 kcal"}]},
+        ]
+      },
+      aggressive: {
+        intro: "Very low calorie, high protein to maximise fat loss quickly. Target: {cal} kcal · {p}g protein daily. Stay hydrated.",
+        days: [
+          { day:"Monday",    theme:"Lean Protocol",    meals:[{icon:"🍳",type:"Breakfast",name:"3 egg whites + 1 whole egg scramble + black coffee",cals:"~200 kcal"},{icon:"🥗",type:"Lunch",name:"Grilled chicken (150g) + large salad + lemon dressing",cals:"~320 kcal"},{icon:"🥒",type:"Snack",name:"Cucumber + carrots + hummus (2 tbsp)",cals:"~120 kcal"},{icon:"🍽️",type:"Dinner",name:"Dal (1 cup, thin) + 1 roti + mixed sabzi",cals:"~320 kcal"}]},
+          { day:"Tuesday",   theme:"High Protein",     meals:[{icon:"🥣",type:"Breakfast",name:"Moong dal chilla (1) + curd (small)",cals:"~220 kcal"},{icon:"🍱",type:"Lunch",name:"Baked fish (150g) + stir-fried broccoli",cals:"~280 kcal"},{icon:"🍎",type:"Snack",name:"Apple + 8 almonds",cals:"~130 kcal"},{icon:"🥘",type:"Dinner",name:"Grilled chicken + steamed veggies (no oil)",cals:"~300 kcal"}]},
+          { day:"Wednesday", theme:"Veggie Day",       meals:[{icon:"🥛",type:"Breakfast",name:"Protein shake (water-based) + 1 boiled egg",cals:"~200 kcal"},{icon:"🍲",type:"Lunch",name:"Palak paneer (small, low oil) + 1 roti",cals:"~320 kcal"},{icon:"🥜",type:"Snack",name:"Greek yoghurt (plain, low-fat)",cals:"~100 kcal"},{icon:"🍛",type:"Dinner",name:"Masoor dal + salad + 1 roti",cals:"~310 kcal"}]},
+          { day:"Thursday",  theme:"Repeat Monday",    meals:[{icon:"🍳",type:"Breakfast",name:"Egg white omelette with spinach + black coffee",cals:"~190 kcal"},{icon:"🥗",type:"Lunch",name:"Grilled chicken tikka + salad + raita",cals:"~340 kcal"},{icon:"🥒",type:"Snack",name:"Boiled egg + green tea",cals:"~80 kcal"},{icon:"🍽️",type:"Dinner",name:"Mixed vegetable curry (low oil) + 1 roti",cals:"~300 kcal"}]},
+          { day:"Friday",    theme:"Staying Strong",   meals:[{icon:"🥣",type:"Breakfast",name:"Besan chilla (1) + mint chutney",cals:"~210 kcal"},{icon:"🍱",type:"Lunch",name:"Tuna / chicken salad with olive oil & lemon",cals:"~300 kcal"},{icon:"🍊",type:"Snack",name:"Orange + 5 walnuts",cals:"~130 kcal"},{icon:"🥘",type:"Dinner",name:"Dal soup + 1 roti + sautéed greens",cals:"~310 kcal"}]},
+          { day:"Saturday",  theme:"Refeed (slightly)",meals:[{icon:"🥛",type:"Breakfast",name:"Oats (40g) + banana + protein powder",cals:"~310 kcal"},{icon:"🍲",type:"Lunch",name:"Chicken rice bowl (brown rice ½ cup) + salad",cals:"~420 kcal"},{icon:"🥜",type:"Snack",name:"Protein shake",cals:"~150 kcal"},{icon:"🍛",type:"Dinner",name:"Dal + 1 roti + sabzi",cals:"~330 kcal"}]},
+          { day:"Sunday",    theme:"Rest Day",         meals:[{icon:"🍳",type:"Breakfast",name:"2 poached eggs + 1 toast + black coffee",cals:"~240 kcal"},{icon:"🥗",type:"Lunch",name:"Khichdi (moong dal, no ghee) + curd",cals:"~340 kcal"},{icon:"🍎",type:"Snack",name:"Fruit (1 cup) + green tea",cals:"~80 kcal"},{icon:"🍽️",type:"Dinner",name:"Grilled paneer / tofu + stir-fried veggies",cals:"~300 kcal"}]},
+        ]
+      }
+    };
+
+    function showDiet() {
+      const { dailyCals, protein, goal } = lastCalc;
+      const plan = PLANS[goal];
+
+      document.getElementById('diet-intro').textContent =
+        plan.intro.replace('{cal}', dailyCals.toLocaleString()).replace('{p}', protein);
+
+      const grid = document.getElementById('week-grid');
+      grid.innerHTML = '';
+
+      plan.days.forEach((d, i) => {
+        const card = document.createElement('div');
+        card.className = 'day-card' + (i === 0 ? ' open' : '');
+
+        card.innerHTML = `
+          <div class="day-header" onclick="toggleDay(this)">
+            <span class="day-name">${d.day}</span>
+            <span class="day-theme">${d.theme}</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="day-body">
+            ${d.meals.map(m => `
+              <div class="meal-row">
+                <div class="meal-icon">${m.icon}</div>
+                <div class="meal-info">
+                  <div class="meal-type">${m.type}</div>
+                  <div class="meal-name">${m.name}</div>
+                  <div class="meal-cals">${m.cals}</div>
+                </div>
+              </div>`).join('')}
+          </div>`;
+        grid.appendChild(card);
+      });
+
+      const section = document.getElementById('diet-section');
+      section.style.display = 'block';
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function toggleDay(header) {
+      header.parentElement.classList.toggle('open');
+    }
+  </script>
+
+</body>
+</html>
