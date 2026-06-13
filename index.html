@@ -4,193 +4,320 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Calorie Calculator · koriander.akshay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0f0f0f; --card: #1a1a1a; --sub: #111;
-      --border: #2a2a2a; --text: #f0f0f0; --muted: #888; --dim: #444;
-      --gold: #f5c842; --orange: #e8834a; --blue: #64b6f7;
-      --green: #6fcf6f; --red: #f57474;
+      --bg: #0a0a0a; --card: #141414; --sub: #0f0f0f;
+      --border: #222; --border-hi: #2e2e2e;
+      --text: #f0f0f0; --text-2: #aaa; --text-3: #555;
+      --gold: #f5c842; --orange: #e8834a;
+      --blue: #64b6f7; --green: #5ecb7a; --red: #f57474;
       --grad: linear-gradient(135deg, #f5c842, #e8834a);
+      --grad-ig: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg); color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      background-image: radial-gradient(ellipse at 50% 0%, rgba(245,200,66,.04) 0%, transparent 60%);
+      color: var(--text);
       min-height: 100vh;
       display: flex; flex-direction: column; align-items: center;
-      padding: 40px 16px 80px;
+      padding: 48px 16px 80px;
     }
 
     /* ── Header ── */
-    header { text-align: center; margin-bottom: 32px; }
-    .handle { font-size: 12px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
-    header h1 { font-size: 28px; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    header p { color: var(--muted); font-size: 13px; margin-top: 6px; }
+    header {
+      text-align: center; margin-bottom: 40px; max-width: 500px; width: 100%;
+    }
+    .header-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(245,200,66,.08); border: 1px solid rgba(245,200,66,.2);
+      border-radius: 20px; padding: 5px 12px; margin-bottom: 16px;
+      font-size: 11px; font-weight: 600; color: var(--gold); letter-spacing: .04em;
+    }
+    .header-badge::before { content: ''; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; }
+    header h1 {
+      font-size: 32px; font-weight: 900; letter-spacing: -.02em;
+      background: var(--grad); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 8px;
+    }
+    header p { color: var(--text-2); font-size: 14px; line-height: 1.5; }
 
-    /* ── Cards ── */
+    /* ── Card ── */
     .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 20px; padding: 28px;
-      width: 100%; max-width: 500px; margin-bottom: 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      width: 100%; max-width: 500px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 32px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.04);
     }
 
     .sec-label {
-      font-size: 10px; font-weight: 700; letter-spacing: .12em;
-      text-transform: uppercase; color: var(--dim); margin-bottom: 14px;
+      font-size: 10px; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--text-3);
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
     }
+    .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
     /* ── Segmented control ── */
-    .seg { display: flex; gap: 6px; margin-bottom: 22px; }
+    .seg { display: flex; gap: 6px; margin-bottom: 24px; }
     .seg input[type=radio] { display: none; }
     .seg label {
-      flex: 1; text-align: center; padding: 11px; background: var(--sub);
-      border: 1px solid #333; border-radius: 10px; cursor: pointer;
-      font-size: 13px; color: var(--muted); font-weight: 500; transition: all .18s;
+      flex: 1; text-align: center; padding: 11px;
+      background: var(--sub); border: 1px solid var(--border);
+      border-radius: 10px; cursor: pointer;
+      font-size: 13px; font-weight: 600; color: var(--text-2);
+      transition: all .18s; letter-spacing: .01em;
     }
-    .seg input:checked + label { background: var(--gold); border-color: var(--gold); color: #0f0f0f; }
+    .seg input:checked + label {
+      background: rgba(245,200,66,.12); border-color: rgba(245,200,66,.4);
+      color: var(--gold);
+    }
 
     /* ── Sliders ── */
-    .sliders { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 22px; }
-    .sl-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .sl-label { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
-    .sl-val { font-size: 30px; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
-    .sl-unit { font-size: 10px; color: var(--dim); margin-top: -4px; }
+    .sliders { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+    .sl-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .sl-label { font-size: 10px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .1em; }
+    .sl-val {
+      font-size: 34px; font-weight: 900; letter-spacing: -.02em;
+      background: var(--grad); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.1;
+    }
+    .sl-unit { font-size: 10px; color: var(--text-3); font-weight: 500; margin-top: -2px; }
 
     input[type=range] {
       -webkit-appearance: none; appearance: none;
-      width: 100%; height: 4px; border-radius: 2px; background: #333; outline: none; cursor: pointer;
+      width: 100%; height: 3px; border-radius: 2px; background: #2a2a2a; outline: none; cursor: pointer;
     }
     input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
-      background: var(--grad); cursor: pointer;
-      box-shadow: 0 0 10px rgba(245,200,66,.45); transition: box-shadow .2s;
+      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+      background: linear-gradient(135deg, #f5c842, #e8834a); cursor: pointer;
+      box-shadow: 0 0 0 3px rgba(245,200,66,.15), 0 2px 8px rgba(0,0,0,.4);
+      transition: box-shadow .2s;
     }
-    input[type=range]::-webkit-slider-thumb:hover { box-shadow: 0 0 16px rgba(245,200,66,.75); }
-    input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--gold); border: none; }
+    input[type=range]::-webkit-slider-thumb:hover {
+      box-shadow: 0 0 0 5px rgba(245,200,66,.2), 0 2px 12px rgba(0,0,0,.5);
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--gold); border: none;
+    }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 0 0 24px; }
 
     /* ── Selects ── */
-    .sel-row { margin-bottom: 14px; }
-    .sel-row label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 5px; }
+    .sel-row { margin-bottom: 12px; }
+    .sel-row > label { font-size: 11px; font-weight: 600; color: var(--text-2); display: block; margin-bottom: 6px; }
     select {
-      width: 100%; background: var(--sub); border: 1px solid #333; border-radius: 10px;
-      color: var(--text); font-size: 14px; padding: 11px 38px 11px 14px; outline: none;
+      width: 100%; background: var(--sub); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); font-family: inherit;
+      font-size: 13px; font-weight: 500; padding: 11px 36px 11px 14px; outline: none;
       -webkit-appearance: none; appearance: none; cursor: pointer; transition: border-color .2s;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 14px center;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23555' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 13px center;
     }
-    select:focus { border-color: var(--gold); }
+    select:focus { border-color: rgba(245,200,66,.5); }
 
-    .divider { border: none; border-top: 1px solid var(--border); margin: 6px 0 22px; }
-
-    /* ── Buttons ── */
+    /* ── Button ── */
     .btn {
-      width: 100%; padding: 14px; background: var(--grad); border: none;
-      border-radius: 12px; font-size: 15px; font-weight: 700; color: #0f0f0f;
-      cursor: pointer; letter-spacing: .02em; transition: opacity .2s, transform .1s;
+      width: 100%; padding: 15px; background: var(--grad); border: none;
+      border-radius: 12px; font-family: inherit; font-size: 15px; font-weight: 700;
+      color: #0a0a0a; cursor: pointer; letter-spacing: .02em; margin-top: 8px;
+      transition: opacity .2s, transform .1s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(245,200,66,.25);
     }
-    .btn:hover { opacity: .9; }
+    .btn:hover { opacity: .92; box-shadow: 0 6px 24px rgba(245,200,66,.35); }
     .btn:active { transform: scale(.99); }
 
     /* ── Results hero ── */
-    .hero { text-align: center; padding: 8px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
-    .hero-num { font-size: 60px; font-weight: 900; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
-    .hero-sub { font-size: 13px; color: var(--muted); margin-top: 5px; }
+    .hero {
+      text-align: center; padding: 16px 0 28px;
+      border-bottom: 1px solid var(--border); margin-bottom: 28px;
+    }
+    .hero-label { font-size: 11px; font-weight: 600; color: var(--text-3); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
+    .hero-num {
+      font-size: 64px; font-weight: 900; letter-spacing: -.03em;
+      background: var(--grad); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text; line-height: 1;
+    }
+    .hero-unit { font-size: 14px; color: var(--text-2); margin-top: 4px; font-weight: 500; }
     .goal-badge {
-      display: inline-block; margin-top: 8px; padding: 4px 12px; border-radius: 20px;
-      font-size: 12px; font-weight: 600; background: rgba(245,200,66,.12); color: var(--gold); border: 1px solid rgba(245,200,66,.25);
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-top: 12px; padding: 5px 14px; border-radius: 20px;
+      font-size: 12px; font-weight: 700; letter-spacing: .02em;
+      background: rgba(245,200,66,.1); color: var(--gold);
+      border: 1px solid rgba(245,200,66,.2);
     }
 
-    /* ── Donut chart ── */
-    .donut-wrap { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
+    /* ── Donut ── */
+    .donut-wrap { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; }
     .donut-svg { flex-shrink: 0; }
-    .donut-legend { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-    .legend-row { display: flex; align-items: center; gap: 8px; }
-    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .legend-info { flex: 1; }
-    .legend-name { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
-    .legend-val { font-size: 17px; font-weight: 700; color: var(--text); }
-    .legend-pct { font-size: 11px; color: var(--dim); margin-left: 3px; }
+    .donut-legend { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+    .legend-row { display: flex; align-items: center; gap: 10px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .legend-name { font-size: 10px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 1px; }
+    .legend-val { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -.01em; }
+    .legend-pct { font-size: 11px; color: var(--text-3); margin-left: 3px; font-weight: 500; }
 
-    /* ── Stats grid ── */
+    /* ── Stats ── */
     .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .stat-box { background: var(--sub); border-radius: 12px; padding: 12px 14px; }
-    .stat-box .s-label { font-size: 11px; color: var(--muted); }
-    .stat-box .s-val { font-size: 18px; font-weight: 700; margin-top: 2px; color: var(--text); }
-    .stat-box .s-sub { font-size: 11px; color: var(--dim); margin-top: 1px; }
+    .stat-box {
+      background: var(--sub); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px;
+      position: relative; overflow: hidden;
+    }
+    .stat-box::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--grad); opacity: .35;
+    }
+    .stat-box .s-label { font-size: 10px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .1em; }
+    .stat-box .s-val { font-size: 22px; font-weight: 800; margin-top: 4px; color: var(--text); letter-spacing: -.01em; }
+    .stat-box .s-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; font-weight: 500; }
     .stat-full { grid-column: 1 / -1; }
 
     /* ── BMI Scale ── */
-    .bmi-scale-wrap { margin-top: 8px; }
+    .bmi-scale-wrap { margin-top: 10px; }
     .bmi-bar {
-      position: relative; height: 7px; border-radius: 4px;
-      background: linear-gradient(to right, #7ab8f5 0% 24%, #6fcf6f 24% 43%, #f5c842 43% 57%, #e8834a 57% 85%, #f57474 85% 100%);
-      margin: 8px 0 4px;
+      position: relative; height: 6px; border-radius: 3px;
+      background: linear-gradient(to right, #7ab8f5 0% 24%, #5ecb7a 24% 43%, #f5c842 43% 57%, #e8834a 57% 85%, #f57474 85% 100%);
+      margin: 10px 0 6px;
     }
     .bmi-marker {
       position: absolute; top: 50%; transform: translate(-50%, -50%);
       width: 14px; height: 14px; border-radius: 50%; background: #fff;
-      box-shadow: 0 0 8px rgba(255,255,255,.6);
-      transition: left .6s cubic-bezier(.34,1.56,.64,1);
+      box-shadow: 0 0 0 2px rgba(255,255,255,.2), 0 2px 8px rgba(0,0,0,.5);
+      transition: left .7s cubic-bezier(.34,1.56,.64,1);
     }
-    .bmi-ticks { display: flex; justify-content: space-between; margin-top: 3px; }
-    .bmi-ticks span { font-size: 9px; color: var(--dim); }
+    .bmi-ticks { display: flex; justify-content: space-between; }
+    .bmi-ticks span { font-size: 9px; font-weight: 600; color: var(--text-3); }
 
     /* ── Tools grid ── */
     #tools {
-      display: none;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px; width: 100%; max-width: 500px;
+      display: none; grid-template-columns: 1fr 1fr;
+      gap: 12px; width: 100%; max-width: 500px;
     }
     .tool-card {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 18px; padding: 22px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.4);
     }
-    .tool-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
-    .tool-title span { font-size: 18px; }
+    .tool-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 700; color: var(--text);
+      margin-bottom: 16px; letter-spacing: -.01em;
+    }
+    .tool-icon {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: rgba(245,200,66,.1); border: 1px solid rgba(245,200,66,.15);
+      display: flex; align-items: center; justify-content: center; font-size: 15px;
+      flex-shrink: 0;
+    }
 
-    /* Meal Split */
-    .meal-seg { display: flex; gap: 4px; margin-bottom: 14px; }
+    /* Meal split */
+    .meal-seg { display: flex; gap: 5px; margin-bottom: 14px; }
     .meal-seg input[type=radio] { display: none; }
     .meal-seg label {
-      flex: 1; text-align: center; padding: 7px 4px; background: var(--sub);
-      border: 1px solid #333; border-radius: 8px; cursor: pointer;
-      font-size: 13px; font-weight: 600; color: var(--muted); transition: all .15s;
+      flex: 1; text-align: center; padding: 8px 4px;
+      background: var(--sub); border: 1px solid var(--border);
+      border-radius: 8px; cursor: pointer;
+      font-size: 13px; font-weight: 700; color: var(--text-3); transition: all .15s;
     }
-    .meal-seg input:checked + label { background: var(--gold); border-color: var(--gold); color: #0f0f0f; }
+    .meal-seg input:checked + label {
+      background: rgba(245,200,66,.1); border-color: rgba(245,200,66,.35); color: var(--gold);
+    }
     .meal-list { display: flex; flex-direction: column; gap: 6px; }
-    .meal-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: var(--sub); border-radius: 8px; }
-    .meal-name { font-size: 12px; color: var(--muted); }
-    .meal-kcal { font-size: 14px; font-weight: 700; color: var(--text); }
-    .meal-bar { height: 3px; border-radius: 2px; background: var(--grad); margin-top: 4px; transition: width .4s ease; }
+    .meal-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 9px 12px; background: var(--sub); border: 1px solid var(--border); border-radius: 10px;
+    }
+    .meal-left { display: flex; align-items: center; gap: 8px; }
+    .meal-name { font-size: 12px; font-weight: 600; color: var(--text-2); }
+    .meal-kcal { font-size: 13px; font-weight: 700; color: var(--text); }
+    .meal-bar { height: 2px; border-radius: 1px; background: var(--grad); margin-top: 3px; }
 
-    /* Protein sources */
-    .prot-list { display: flex; flex-direction: column; gap: 8px; }
-    .prot-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--sub); border-radius: 9px; }
-    .prot-icon { font-size: 20px; width: 28px; text-align: center; }
-    .prot-info { flex: 1; }
-    .prot-food { font-size: 12px; color: var(--muted); }
-    .prot-amount { font-size: 13px; font-weight: 700; color: var(--text); }
+    /* Protein */
+    .prot-list { display: flex; flex-direction: column; gap: 7px; }
+    .prot-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; background: var(--sub);
+      border: 1px solid var(--border); border-radius: 10px;
+    }
+    .prot-icon { font-size: 18px; width: 26px; text-align: center; flex-shrink: 0; }
+    .prot-food { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; }
+    .prot-amount { font-size: 13px; font-weight: 700; color: var(--text); margin-top: 1px; }
+    .note-text { font-size: 11px; color: var(--text-3); margin-top: 12px; line-height: 1.5; padding: 10px 12px; background: rgba(255,255,255,.02); border-radius: 8px; border: 1px solid var(--border); }
 
-    /* Calorie burn */
-    .burn-act { margin-bottom: 12px; }
-    .burn-dur-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-    .burn-dur-row span { font-size: 12px; color: var(--muted); }
-    .burn-dur-val { font-size: 14px; font-weight: 700; color: var(--gold); }
-    .burn-result { background: var(--sub); border-radius: 10px; padding: 12px; text-align: center; }
-    .burn-kcal { font-size: 28px; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
-    .burn-meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    /* Burn */
+    .burn-dur-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .burn-dur-row span { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .06em; }
+    .burn-dur-val { font-size: 14px; font-weight: 800; color: var(--gold); }
+    .burn-result {
+      background: var(--sub); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px; text-align: center; margin-top: 4px;
+    }
+    .burn-kcal {
+      font-size: 32px; font-weight: 900; letter-spacing: -.02em;
+      background: var(--grad); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text; line-height: 1;
+    }
+    .burn-meta { font-size: 11px; color: var(--text-3); margin-top: 4px; font-weight: 500; }
 
-    footer { margin-top: 32px; font-size: 12px; color: var(--dim); text-align: center; }
-    footer a { color: var(--gold); text-decoration: none; }
+    /* ── Disclaimer ── */
+    .disclaimer {
+      width: 100%; max-width: 500px; margin-top: 20px;
+      padding: 18px 20px; border-radius: 14px;
+      background: rgba(255,255,255,.02); border: 1px solid var(--border);
+      font-size: 11px; color: var(--text-3); line-height: 1.7; text-align: center;
+    }
+    .disclaimer strong { color: var(--text-2); font-weight: 600; }
+    .disclaimer-title {
+      font-size: 10px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: 8px;
+    }
+
+    /* ── Instagram CTA ── */
+    .ig-cta {
+      width: 100%; max-width: 500px; margin-top: 16px;
+    }
+    .ig-link {
+      display: flex; align-items: center; gap: 16px;
+      padding: 20px 24px; border-radius: 18px;
+      background: var(--card); border: 1px solid var(--border);
+      box-shadow: 0 4px 24px rgba(0,0,0,.4);
+      text-decoration: none; color: inherit;
+      transition: border-color .2s, box-shadow .2s, transform .15s;
+    }
+    .ig-link:hover {
+      border-color: #bc1888;
+      box-shadow: 0 4px 32px rgba(188,24,136,.15);
+      transform: translateY(-1px);
+    }
+    .ig-icon-wrap {
+      width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+      background: var(--grad-ig); display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(220,39,67,.3);
+    }
+    .ig-icon-wrap svg { fill: #fff; }
+    .ig-text-wrap { flex: 1; }
+    .ig-follow-label { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .ig-handle { font-size: 12px; font-weight: 600; color: var(--text-2); }
+    .ig-arrow { font-size: 18px; color: var(--text-3); flex-shrink: 0; }
+
+    .page-footer { margin-top: 28px; font-size: 11px; color: var(--text-3); text-align: center; }
 
     @media (max-width: 440px) {
       #tools { grid-template-columns: 1fr; }
       .donut-wrap { flex-direction: column; }
-      .stats { grid-template-columns: 1fr 1fr; }
-      .hero-num { font-size: 50px; }
-      .sl-val { font-size: 24px; }
+      .hero-num { font-size: 56px; }
+      .sl-val { font-size: 28px; }
     }
     @media (max-width: 320px) {
       .sliders { grid-template-columns: 1fr; }
@@ -199,10 +326,11 @@
 </head>
 <body>
 
+<!-- ── Header ── -->
 <header>
-  <div class="handle">@koriander.akshay</div>
+  <div class="header-badge">Free Tool · @koriander.akshay</div>
   <h1>Calorie Calculator</h1>
-  <p>Calories, macros & tools — all from your stats</p>
+  <p>Enter your stats and get your daily calories, macros, and personalised tools — in seconds.</p>
 </header>
 
 <!-- ── Input ── -->
@@ -220,7 +348,7 @@
     <div class="sl-item">
       <div class="sl-label">Age</div>
       <div class="sl-val" id="d-age">25</div>
-      <div class="sl-unit">yrs</div>
+      <div class="sl-unit">years</div>
       <input type="range" id="age" min="15" max="65" value="25" oninput="syncSlider(this,'d-age')"/>
     </div>
     <div class="sl-item">
@@ -238,7 +366,7 @@
   </div>
 
   <hr class="divider"/>
-  <div class="sec-label">Activity & Goal</div>
+  <div class="sec-label">Activity &amp; Goal</div>
   <div class="sel-row">
     <label>Activity Level</label>
     <select id="activity">
@@ -249,7 +377,7 @@
       <option value="1.9">Extra Active — athlete / physical job</option>
     </select>
   </div>
-  <div class="sel-row" style="margin-bottom:22px;">
+  <div class="sel-row" style="margin-bottom:8px;">
     <label>Goal</label>
     <select id="goal">
       <option value="cut">Lose Fat — −500 kcal deficit</option>
@@ -259,21 +387,22 @@
     </select>
   </div>
 
-  <button class="btn" onclick="calculate()">Calculate →</button>
+  <button class="btn" onclick="calculate()">Calculate my numbers →</button>
 </div>
 
 <!-- ── Results ── -->
 <div class="card" id="results" style="display:none">
   <div class="hero">
+    <div class="hero-label">Daily Calorie Target</div>
     <div class="hero-num" id="r-cal">—</div>
-    <div class="hero-sub">Daily Calories (kcal)</div>
+    <div class="hero-unit">kilocalories per day</div>
     <div class="goal-badge" id="r-badge">—</div>
   </div>
 
-  <!-- Donut -->
+  <div class="sec-label">Macro Breakdown</div>
   <div class="donut-wrap">
-    <svg class="donut-svg" viewBox="0 0 140 140" width="150" height="150">
-      <circle cx="70" cy="70" r="54" fill="none" stroke="#222" stroke-width="18"/>
+    <svg class="donut-svg" viewBox="0 0 140 140" width="148" height="148">
+      <circle cx="70" cy="70" r="54" fill="none" stroke="#1e1e1e" stroke-width="18"/>
       <circle id="seg-p" cx="70" cy="70" r="54" fill="none" stroke="#f5c842" stroke-width="18"
         stroke-linecap="butt" transform="rotate(-90 70 70)"
         stroke-dasharray="0 339.3" style="transition:stroke-dasharray .9s ease,stroke-dashoffset .9s ease"/>
@@ -283,27 +412,27 @@
       <circle id="seg-f" cx="70" cy="70" r="54" fill="none" stroke="#64b6f7" stroke-width="18"
         stroke-linecap="butt" transform="rotate(-90 70 70)"
         stroke-dasharray="0 339.3" style="transition:stroke-dasharray .9s ease,stroke-dashoffset .9s ease"/>
-      <text x="70" y="65" text-anchor="middle" fill="#666" font-size="9" font-family="sans-serif" letter-spacing="1">MACROS</text>
-      <text x="70" y="82" text-anchor="middle" fill="#f0f0f0" font-size="13" font-weight="bold" font-family="sans-serif" id="donut-label">—</text>
+      <text x="70" y="63" text-anchor="middle" fill="#444" font-size="8" font-family="Inter,sans-serif" font-weight="700" letter-spacing="1.5">PROTEIN</text>
+      <text x="70" y="81" text-anchor="middle" fill="#f0f0f0" font-size="14" font-weight="800" font-family="Inter,sans-serif" id="donut-label">—</text>
     </svg>
     <div class="donut-legend">
       <div class="legend-row">
         <div class="legend-dot" style="background:#f5c842"></div>
-        <div class="legend-info">
+        <div>
           <div class="legend-name">Protein</div>
           <div><span class="legend-val" id="l-p">—</span><span class="legend-pct" id="l-pp"></span></div>
         </div>
       </div>
       <div class="legend-row">
         <div class="legend-dot" style="background:#e8834a"></div>
-        <div class="legend-info">
+        <div>
           <div class="legend-name">Carbs</div>
           <div><span class="legend-val" id="l-c">—</span><span class="legend-pct" id="l-cp"></span></div>
         </div>
       </div>
       <div class="legend-row">
         <div class="legend-dot" style="background:#64b6f7"></div>
-        <div class="legend-info">
+        <div>
           <div class="legend-name">Fat</div>
           <div><span class="legend-val" id="l-f">—</span><span class="legend-pct" id="l-fp"></span></div>
         </div>
@@ -311,22 +440,22 @@
     </div>
   </div>
 
-  <!-- Stats -->
+  <div class="sec-label">Key Stats</div>
   <div class="stats">
     <div class="stat-box">
-      <div class="s-label">BMR (base rate)</div>
+      <div class="s-label">Basal Metabolic Rate</div>
       <div class="s-val" id="r-bmr">—</div>
-      <div class="s-sub">kcal at rest</div>
+      <div class="s-sub">kcal at complete rest</div>
     </div>
     <div class="stat-box">
-      <div class="s-label">Daily water</div>
+      <div class="s-label">Daily Water</div>
       <div class="s-val" id="r-water">—</div>
-      <div class="s-sub">litres / day</div>
+      <div class="s-sub">litres recommended</div>
     </div>
     <div class="stat-box">
-      <div class="s-label">Expected change</div>
+      <div class="s-label">Weekly Change</div>
       <div class="s-val" id="r-weekly">—</div>
-      <div class="s-sub">per week</div>
+      <div class="s-sub">estimated body weight</div>
     </div>
     <div class="stat-box">
       <div class="s-label">BMI</div>
@@ -337,7 +466,9 @@
       <div class="s-label">BMI Scale</div>
       <div class="bmi-scale-wrap">
         <div class="bmi-bar"><div class="bmi-marker" id="bmi-marker" style="left:50%"></div></div>
-        <div class="bmi-ticks"><span>Underweight</span><span>Normal</span><span>Overweight</span><span>Obese</span></div>
+        <div class="bmi-ticks">
+          <span>Underweight</span><span>Normal</span><span>Overweight</span><span>Obese</span>
+        </div>
       </div>
     </div>
   </div>
@@ -348,7 +479,10 @@
 
   <!-- Meal Split -->
   <div class="tool-card">
-    <div class="tool-title"><span>🍽️</span> Meal Split</div>
+    <div class="tool-title">
+      <div class="tool-icon">🍽️</div>
+      Meal Split
+    </div>
     <div class="meal-seg">
       <input type="radio" name="meals" id="m2" value="2"/><label for="m2">2</label>
       <input type="radio" name="meals" id="m3" value="3" checked/><label for="m3">3</label>
@@ -361,57 +495,93 @@
 
   <!-- Protein Sources -->
   <div class="tool-card">
-    <div class="tool-title"><span>💪</span> Protein Sources</div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">To hit your <strong id="prot-goal-label" style="color:var(--gold)">—g</strong> protein goal:</p>
+    <div class="tool-title">
+      <div class="tool-icon">💪</div>
+      Protein Sources
+    </div>
+    <p style="font-size:12px;color:var(--text-2);margin-bottom:12px;font-weight:500;">
+      To hit your <strong id="prot-goal-label" style="color:var(--gold)">—g</strong> daily protein goal:
+    </p>
     <div class="prot-list" id="prot-list"></div>
+    <div class="note-text">📚 For educational purposes — this illustrates what <span id="prot-edu-label">Xg</span> of protein looks like across common sources. Actual values vary by preparation and brand.</div>
   </div>
 
   <!-- Calorie Burn -->
-  <div class="tool-card">
-    <div class="tool-title"><span>🔥</span> Burn Estimator</div>
-    <div class="burn-act sel-row" style="margin-bottom:12px;">
-      <select id="burn-act" onchange="calcBurn()">
-        <option value="3.5">🚶 Walking (5 km/h)</option>
-        <option value="8.3">🏃 Running (8 km/h)</option>
-        <option value="6.8">🚴 Cycling (moderate)</option>
-        <option value="7.0">🏊 Swimming</option>
-        <option value="2.5">🧘 Yoga</option>
-        <option value="4.0" selected>🏋️ Weight Training</option>
-        <option value="10.0">⚡ HIIT</option>
-        <option value="6.0">🧗 Hiking / Stairs</option>
-      </select>
+  <div class="tool-card" style="grid-column: 1 / -1;">
+    <div class="tool-title">
+      <div class="tool-icon">🔥</div>
+      Burn Estimator
     </div>
-    <div class="burn-dur-row">
-      <span>Duration</span>
-      <span class="burn-dur-val"><span id="dur-val">30</span> min</span>
-    </div>
-    <input type="range" id="burn-dur" min="10" max="120" value="30" step="5"
-      oninput="document.getElementById('dur-val').textContent=this.value; syncSlider(this,null); calcBurn();" style="margin-bottom:12px;"/>
-    <div class="burn-result">
-      <div class="burn-kcal" id="burn-kcal">—</div>
-      <div class="burn-meta" id="burn-meta">kcal burned</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Activity</div>
+        <select id="burn-act" onchange="calcBurn()" style="font-size:12px;">
+          <option value="3.5">🚶 Walking (5 km/h)</option>
+          <option value="8.3">🏃 Running (8 km/h)</option>
+          <option value="6.8">🚴 Cycling (moderate)</option>
+          <option value="7.0">🏊 Swimming</option>
+          <option value="2.5">🧘 Yoga</option>
+          <option value="4.0" selected>🏋️ Weight Training</option>
+          <option value="10.0">⚡ HIIT</option>
+          <option value="6.0">🧗 Hiking / Stairs</option>
+        </select>
+        <div class="burn-dur-row" style="margin-top:14px;">
+          <span>Duration</span>
+          <span class="burn-dur-val"><span id="dur-val">30</span> min</span>
+        </div>
+        <input type="range" id="burn-dur" min="10" max="120" value="30" step="5"
+          oninput="document.getElementById('dur-val').textContent=this.value; syncSlider(this,null); calcBurn();"/>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Result</div>
+        <div class="burn-result">
+          <div class="burn-kcal" id="burn-kcal">—</div>
+          <div class="burn-meta" id="burn-meta">kcal burned</div>
+        </div>
+        <div class="note-text" style="margin-top:10px;">⚠️ Values may vary based on body type, fitness level, and individual factors.</div>
+      </div>
     </div>
   </div>
 
 </div>
 
-<footer>Made with ❤️ by <a href="https://www.instagram.com/koriander.akshay" target="_blank">@koriander.akshay</a></footer>
+<!-- ── Disclaimer ── -->
+<div class="disclaimer">
+  <div class="disclaimer-title">⚠ Important Disclaimer</div>
+  <p>All figures are <strong>approximate estimates</strong> based on the Mifflin-St Jeor equation and general nutritional guidelines. Individual results vary based on metabolism, body composition, and medical conditions.</p>
+  <p style="margin-top:8px;">This tool is for <strong>educational purposes only</strong> and does not constitute medical or dietary advice. Consult a qualified healthcare professional or registered dietitian before making significant changes to your diet or exercise routine.</p>
+</div>
+
+<!-- ── Instagram CTA ── -->
+<div class="ig-cta">
+  <a href="https://www.instagram.com/koriander.akshay" target="_blank" class="ig-link">
+    <div class="ig-icon-wrap">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22">
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+      </svg>
+    </div>
+    <div class="ig-text-wrap">
+      <div class="ig-follow-label">Follow on Instagram</div>
+      <div class="ig-handle">@koriander.akshay · Recipes &amp; fitness</div>
+    </div>
+    <div class="ig-arrow">→</div>
+  </a>
+</div>
+
+<p class="page-footer">© 2025 koriander.akshay · Made with ❤️</p>
 
 <script>
-  // ── Init sliders ──
   document.querySelectorAll('input[type=range]').forEach(r => syncSlider(r, null));
 
   function syncSlider(input, displayId) {
     const min = +input.min, max = +input.max, val = +input.value;
     const pct = (val - min) / (max - min) * 100;
-    input.style.background = `linear-gradient(to right,#f5c842 ${pct}%,#333 ${pct}%)`;
+    input.style.background = `linear-gradient(to right,#f5c842 ${pct}%,#2a2a2a ${pct}%)`;
     if (displayId) document.getElementById(displayId).textContent = val;
   }
 
-  // ── State ──
   const S = {};
 
-  // ── Main calculate ──
   function calculate() {
     const gender   = document.querySelector('input[name=gender]:checked').value;
     const age      = +document.getElementById('age').value;
@@ -425,88 +595,76 @@
       : 10*weight + 6.25*height - 5*age - 161;
 
     const tdee = bmr * activity;
-    const adj = { cut:-500, maintain:0, build:300, aggressive:-750 };
+    const adj  = { cut:-500, maintain:0, build:300, aggressive:-750 };
     const dailyCals = Math.round(tdee + adj[goal]);
 
-    const pMult = { cut:2.2, maintain:1.8, build:2.4, aggressive:2.2 };
+    const pMult  = { cut:2.2, maintain:1.8, build:2.4, aggressive:2.2 };
     const protein = Math.round(weight * pMult[goal]);
     const fat     = Math.round(dailyCals * 0.25 / 9);
     const carbs   = Math.max(0, Math.round((dailyCals * 0.75 - protein * 4) / 4));
 
-    const hM  = height / 100;
-    const bmi = Math.round(weight / (hM * hM) * 10) / 10;
+    const hM    = height / 100;
+    const bmi   = Math.round(weight / (hM * hM) * 10) / 10;
     const bmiCats = [{t:18.5,l:'Underweight'},{t:25,l:'Normal Weight'},{t:30,l:'Overweight'},{t:Infinity,l:'Obese'}];
     const bmiCat  = bmiCats.find(c => bmi < c.t).l;
-
-    const waterL = (weight * 35 / 1000).toFixed(1);
-    const wkMap  = { cut:'−0.45 kg', maintain:'0 kg', build:'+0.27 kg', aggressive:'−0.68 kg' };
-    const wkNum  = { cut:-0.45, maintain:0, build:0.27, aggressive:-0.68 };
-    const badges = { cut:'🔥 Fat Loss', maintain:'⚖️ Maintenance', build:'💪 Muscle Gain', aggressive:'⚡ Aggressive Cut' };
+    const waterL  = (weight * 35 / 1000).toFixed(1);
+    const wkMap   = { cut:'−0.45 kg', maintain:'±0 kg', build:'+0.27 kg', aggressive:'−0.68 kg' };
+    const wkNum   = { cut:-0.45, maintain:0, build:0.27, aggressive:-0.68 };
+    const badges  = { cut:'🔥 Fat Loss Mode', maintain:'⚖️ Maintenance', build:'💪 Muscle Building', aggressive:'⚡ Aggressive Cut' };
 
     Object.assign(S, { dailyCals, protein, carbs, fat, bmi, goal, weight, bmr:Math.round(bmr), waterL, weeklyKg:wkNum[goal] });
 
-    // Hero
-    document.getElementById('r-cal').textContent   = dailyCals.toLocaleString();
-    document.getElementById('r-badge').textContent = badges[goal];
-    document.getElementById('r-bmr').textContent   = S.bmr.toLocaleString();
-    document.getElementById('r-water').textContent = waterL + ' L';
-    document.getElementById('r-weekly').textContent= wkMap[goal];
-    document.getElementById('r-bmi').textContent   = bmi;
+    document.getElementById('r-cal').textContent     = dailyCals.toLocaleString();
+    document.getElementById('r-badge').textContent   = badges[goal];
+    document.getElementById('r-bmr').textContent     = S.bmr.toLocaleString();
+    document.getElementById('r-water').textContent   = waterL + ' L';
+    document.getElementById('r-weekly').textContent  = wkMap[goal];
+    document.getElementById('r-bmi').textContent     = bmi;
     document.getElementById('r-bmi-cat').textContent = bmiCat;
 
-    // BMI scale marker
-    const bmiPct = Math.min(98, Math.max(2, (bmi - 10) / 35 * 100));
+    const bmiPct = Math.min(97, Math.max(3, (bmi - 10) / 35 * 100));
     document.getElementById('bmi-marker').style.left = bmiPct + '%';
 
-    // Donut
     updateDonut(protein, carbs, fat);
-
-    // Tools
     updateMealSplit();
     updateProteinSources();
     calcBurn();
 
-    // Show
     document.getElementById('results').style.display = 'block';
     document.getElementById('tools').style.display   = 'grid';
     document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'start' });
   }
 
-  // ── Donut chart ──
   function updateDonut(protein, carbs, fat) {
-    const circ = 2 * Math.PI * 54; // 339.29
+    const circ = 2 * Math.PI * 54;
     const pCal = protein * 4, cCal = carbs * 4, fCal = fat * 9;
     const total = pCal + cCal + fCal;
-    const pLen = pCal / total * circ;
-    const cLen = cCal / total * circ;
-    const fLen = fCal / total * circ;
-    const gap = 4;
+    const pLen  = pCal / total * circ;
+    const cLen  = cCal / total * circ;
+    const fLen  = fCal / total * circ;
+    const gap   = 4;
 
     const segP = document.getElementById('seg-p');
     const segC = document.getElementById('seg-c');
     const segF = document.getElementById('seg-f');
 
-    // Reset to 0 first (no transition)
     [segP, segC, segF].forEach(s => {
       s.style.transition = 'none';
       s.setAttribute('stroke-dasharray', `0 ${circ}`);
       s.setAttribute('stroke-dashoffset', '0');
     });
 
-    // Animate in next frame
     requestAnimationFrame(() => requestAnimationFrame(() => {
       const tr = 'stroke-dasharray .9s ease, stroke-dashoffset .6s ease';
       segP.style.transition = tr;
-      segP.setAttribute('stroke-dasharray', `${pLen - gap} ${circ - pLen + gap}`);
+      segP.setAttribute('stroke-dasharray', `${pLen-gap} ${circ-pLen+gap}`);
       segP.setAttribute('stroke-dashoffset', '0');
-
       segC.style.transition = tr;
-      segC.setAttribute('stroke-dasharray', `${cLen - gap} ${circ - cLen + gap}`);
+      segC.setAttribute('stroke-dasharray', `${cLen-gap} ${circ-cLen+gap}`);
       segC.setAttribute('stroke-dashoffset', `${-pLen}`);
-
       segF.style.transition = tr;
-      segF.setAttribute('stroke-dasharray', `${fLen - gap} ${circ - fLen + gap}`);
-      segF.setAttribute('stroke-dashoffset', `${-(pLen + cLen)}`);
+      segF.setAttribute('stroke-dasharray', `${fLen-gap} ${circ-fLen+gap}`);
+      segF.setAttribute('stroke-dashoffset', `${-(pLen+cLen)}`);
     }));
 
     const pPct = Math.round(pCal/total*100);
@@ -514,15 +672,14 @@
     const fPct = 100 - pPct - cPct;
 
     document.getElementById('donut-label').textContent = `${protein}g`;
-    document.getElementById('l-p').textContent = `${protein}g`;
+    document.getElementById('l-p').textContent  = `${protein}g`;
     document.getElementById('l-pp').textContent = ` ${pPct}%`;
-    document.getElementById('l-c').textContent = `${carbs}g`;
+    document.getElementById('l-c').textContent  = `${carbs}g`;
     document.getElementById('l-cp').textContent = ` ${cPct}%`;
-    document.getElementById('l-f').textContent = `${fat}g`;
+    document.getElementById('l-f').textContent  = `${fat}g`;
     document.getElementById('l-fp').textContent = ` ${fPct}%`;
   }
 
-  // ── Meal Split ──
   const SPLITS = {
     2: [{n:'Lunch',p:50,i:'🍱'},{n:'Dinner',p:50,i:'🍛'}],
     3: [{n:'Breakfast',p:30,i:'🌅'},{n:'Lunch',p:40,i:'🍱'},{n:'Dinner',p:30,i:'🍛'}],
@@ -537,47 +694,44 @@
     list.innerHTML = SPLITS[n].map(m => {
       const kcal = Math.round(S.dailyCals * m.p / 100);
       return `<div class="meal-item">
-        <span style="font-size:16px">${m.i}</span>
-        <span class="meal-name">${m.n}</span>
-        <div>
+        <div class="meal-left"><span style="font-size:15px">${m.i}</span><span class="meal-name">${m.n}</span></div>
+        <div style="text-align:right">
           <div class="meal-kcal">${kcal} kcal</div>
-          <div class="meal-bar" style="width:${m.p}%"></div>
+          <div class="meal-bar" style="width:${m.p * 1.4}px;max-width:100%;"></div>
         </div>
       </div>`;
     }).join('');
   }
   document.querySelectorAll('input[name=meals]').forEach(r => r.addEventListener('change', updateMealSplit));
 
-  // ── Protein Sources ──
   const FOODS = [
-    { icon:'🥚', food:'Eggs (whole)', protPer:6,   unit:'egg',  label:(n)=>`${n} eggs`},
-    { icon:'🍗', food:'Chicken breast', protPer:31, unit:'100g', label:(n)=>`${n*100}g`},
-    { icon:'🧀', food:'Paneer',        protPer:18,  unit:'100g', label:(n)=>`${n*100}g`},
-    { icon:'🫙', food:'Greek yoghurt', protPer:10,  unit:'100g', label:(n)=>`${n*100}g`},
-    { icon:'🥛', food:'Whey protein',  protPer:24,  unit:'scoop',label:(n)=>`${n} scoop${n>1?'s':''}`},
-    { icon:'🫘', food:'Moong dal (cooked)', protPer:9, unit:'100g', label:(n)=>`${n*100}g`},
+    {icon:'🥚', food:'Eggs (whole)',       protPer:6,  label:(n)=>`${n} eggs`},
+    {icon:'🍗', food:'Chicken breast',     protPer:31, label:(n)=>`${n*100}g`},
+    {icon:'🧀', food:'Paneer',             protPer:18, label:(n)=>`${n*100}g`},
+    {icon:'🫙', food:'Greek yoghurt',      protPer:10, label:(n)=>`${n*100}g`},
+    {icon:'🥛', food:'Whey protein',       protPer:24, label:(n)=>`${n} scoop${n>1?'s':''}`},
+    {icon:'🫘', food:'Moong dal (cooked)', protPer:9,  label:(n)=>`${n*100}g`},
   ];
 
   function updateProteinSources() {
     document.getElementById('prot-goal-label').textContent = S.protein + 'g';
-    const list = document.getElementById('prot-list');
-    list.innerHTML = FOODS.map(f => {
+    document.getElementById('prot-edu-label').textContent  = S.protein + 'g';
+    document.getElementById('prot-list').innerHTML = FOODS.map(f => {
       const n = Math.ceil(S.protein / f.protPer);
       return `<div class="prot-item">
         <div class="prot-icon">${f.icon}</div>
-        <div class="prot-info">
+        <div>
           <div class="prot-food">${f.food}</div>
-          <div class="prot-amount">${f.label(n)} <span style="color:var(--dim);font-size:11px;font-weight:400">≈ ${S.protein}g protein</span></div>
+          <div class="prot-amount">${f.label(n)} <span style="color:var(--text-3);font-size:11px;font-weight:500">≈ ${S.protein}g</span></div>
         </div>
       </div>`;
     }).join('');
   }
 
-  // ── Calorie Burn ──
   function calcBurn() {
     if (!S.weight) return;
-    const met  = +document.getElementById('burn-act').value;
-    const mins = +document.getElementById('burn-dur').value;
+    const met    = +document.getElementById('burn-act').value;
+    const mins   = +document.getElementById('burn-dur').value;
     const burned = Math.round(met * S.weight * mins / 60);
     const pct    = Math.round(burned / S.dailyCals * 100);
     document.getElementById('burn-kcal').textContent = burned.toLocaleString();
